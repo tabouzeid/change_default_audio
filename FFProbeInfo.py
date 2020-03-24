@@ -25,8 +25,6 @@ class FFProbeInfo(object):
         self.formatInfo = FFProbeFormatInfo({})
         self.streamInfo = FFProbeStreamInfo({})
         self.path = video_path
-        filename, file_extension = os.path.splitext(self.path)
-        self.output_file_path = filename + '-OUTPUT' + file_extension
         self.ffprobe_path = ffp_path
 
     def __repr__(self):

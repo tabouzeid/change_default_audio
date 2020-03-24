@@ -1,9 +1,10 @@
 import os
+import argparse
 from FFProbeInfo import FFProbeInfo
 
 
-def main():
-    info = FFProbeInfo("", "/usr/local/bin/ffprobe")
+def main(args):
+    info = FFProbeInfo(args['i'], args['fp'])
     info = info.probe()
     if info is None:
         print("Path no found")
@@ -15,7 +16,7 @@ def main():
         current_default_audio_index = get_current_default(info)
         desired_default_audio_index = get_desired_default(info, current_default_audio_index)
         print 'Switching default audio from %d to %d' % (current_default_audio_index, desired_default_audio_index)
-        command = 'ffmpeg -i \"%s\" -map 0 -c:s copy -disposition:a:%d default -disposition:a:%s none \"%s\"' % (info.path, desired_default_audio_index, current_default_audio_index, info.output_file_path)
+        command = '%s -i \"%s\" -map 0 -c:s copy -disposition:a:%d default -disposition:a:%s none \"%s\"' % (args['fm'], info.path, desired_default_audio_index, current_default_audio_index, args['o'])
         print command
         exit_status = os.system(command)
         exit_status = os.WEXITSTATUS(exit_status)
@@ -53,5 +54,12 @@ def get_desired_default(info, current_default_audio_index):
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', help='Path to the input video file', metavar='/path/to/input/video.mp4', type=str, required=True)
+    parser.add_argument('-o', help='Path to the output video file', metavar='/path/to/output/video.mp4', type=str, required=True)
+    parser.add_argument('--fm', help='Path to the ffmpeg command', metavar='/path/to/ffmpeg', type=str, required=False, default='ffmpeg')
+    parser.add_argument('--fp', help='Path to the ffprobe command', metavar='/path/to/ffprobe', type=str, required=False, default='ffprobe')
+    args = parser.parse_args()
+    print vars(args)
+    main(vars(args))
 
